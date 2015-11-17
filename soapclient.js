@@ -113,24 +113,24 @@ function SOAPClient() {}
 SOAPClient.username = null;
 SOAPClient.password = null;
 
-SOAPClient.invoke = function(url, method, parameters, async, callback)
+SOAPClient.invoke = function(url, method, parameters, async, headers, callback)
 {
 	if(async)
-		SOAPClient._loadWsdl(url, method, parameters, async, callback);
+		SOAPClient._loadWsdl(url, method, parameters, async, headers, callback);
 	else
-		return SOAPClient._loadWsdl(url, method, parameters, async, callback);
+		return SOAPClient._loadWsdl(url, method, parameters, async, headers, callback);
 }
 
 // private: wsdl cache
 SOAPClient_cacheWsdl = new Array();
 
 // private: invoke async
-SOAPClient._loadWsdl = function(url, method, parameters, async, callback)
+SOAPClient._loadWsdl = function(url, method, parameters, async, headers, callback)
 {
 	// load from cache?
 	var wsdl = SOAPClient_cacheWsdl[url];
 	if(wsdl + "" != "" && wsdl + "" != "undefined")
-		return SOAPClient._sendSoapRequest(url, method, parameters, async, callback, wsdl);
+		return SOAPClient._sendSoapRequest(url, method, parameters, async, headers, callback, wsdl);
 	// get wsdl
 	var xmlHttp = SOAPClient._getXmlHttp();
 	xmlHttp.open("GET", url + "?wsdl", async);
@@ -139,20 +139,20 @@ SOAPClient._loadWsdl = function(url, method, parameters, async, callback)
 		xmlHttp.onreadystatechange = function() 
 		{
 			if(xmlHttp.readyState == 4)
-				SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
+				SOAPClient._onLoadWsdl(url, method, parameters, async, headers, callback, xmlHttp);
 		}
 	}
 	xmlHttp.send(null);
 	if (!async)
-		return SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
+		return SOAPClient._onLoadWsdl(url, method, parameters, async, headers, callback, xmlHttp);
 }
-SOAPClient._onLoadWsdl = function(url, method, parameters, async, callback, req)
+SOAPClient._onLoadWsdl = function(url, method, parameters, async, headers, callback, req)
 {
 	var wsdl = req.responseXML;
 	SOAPClient_cacheWsdl[url] = wsdl;	// save a copy in cache
-	return SOAPClient._sendSoapRequest(url, method, parameters, async, callback, wsdl);
+	return SOAPClient._sendSoapRequest(url, method, parameters, async, headers, callback, wsdl);
 }
-SOAPClient._sendSoapRequest = function(url, method, parameters, async, callback, wsdl)
+SOAPClient._sendSoapRequest = function(url, method, parameters, async, headers, callback, wsdl)
 {
 	// get namespace
 	var ns = (wsdl.documentElement.attributes["targetNamespace"] + "" == "undefined") ? wsdl.documentElement.attributes.getNamedItem("targetNamespace").nodeValue : wsdl.documentElement.attributes["targetNamespace"].value;
@@ -179,6 +179,12 @@ SOAPClient._sendSoapRequest = function(url, method, parameters, async, callback,
 	var soapaction = ((ns.lastIndexOf("/") != ns.length - 1) ? ns + "/" : ns) + method;
 	xmlHttp.setRequestHeader("SOAPAction", soapaction);
 	xmlHttp.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
+	
+	//Set Custom Headers
+	for(var header in headers){
+		xmlHttp.setRequestHeader(header, headers[header]);
+	}
+	
 	if(async) 
 	{
 		xmlHttp.onreadystatechange = function() 

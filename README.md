@@ -23,23 +23,24 @@ Then, wherever you are going to consume it, make a reference to the $soap servic
 }])
 ```
 
-$soap has one method, post, which accepts the following paramaters:
+`$soap` has one method, post, which accepts the following parameters:
 
 | Parameter |Description | Example |
 | ------------ | ------------  | ------------  |
 | url | The base URL of the service | "http://www.cooldomain.com/SoapTest/webservicedemo.asmx" |
 | action | The action you want to call | "HelloWorld" |
 | params | An object of parameters to pass to the service | { name: "Andrew" } |
+| headers | An object of headers to pass to the service | { authentication: "93759367" } |
 
 Syntax:
 ``` javascript
-$soap.post(url,action,params);
+$soap.post(url,action,params,headers);
 ```
 
-Similar to $http methods, $soap.post returns a promise that you can act upon.
+Similar to `$http` methods, `$soap.post` returns a promise that you can act upon.
 
 ``` javascript
-$soap.post(url,action,params).then(function(response){
+$soap.post(url,action,params,headers).then(function(response){
 	//Do Stuff
 });
 ```
@@ -179,6 +180,32 @@ angular.module('myApp', ['angularSoap'])
 		console.log(users[i].firstName);
 		console.log(users[i].lastName);
 	}
+  });
+  
+})
+
+```
+
+# Example 6: Invoke with Headers
+A basic method call with headers.
+
+``` javascript
+angular.module('myApp', ['angularSoap'])
+
+.factory("testService", ['$soap',function($soap){
+	var base_url = "http://www.cooldomain.com/SoapTest/webservicedemo.asmx";
+
+	return {
+		CreateUser: function(firstName, lastName){
+			return $soap.post(base_url,"CreateUser", {}, {authentication: '8FJKGFD67'});
+		}
+	}
+}])
+
+.controller('MainCtrl', function($scope, testService) {
+
+  testService.CreateUser($scope.firstName, $scope.lastName).then(function(response){
+	$scope.response = response;
   });
   
 })
