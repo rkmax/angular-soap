@@ -6,7 +6,7 @@
     "andrewmcgivery <andrew@mcgivery.com>"
   ],
   "description": "An angular port of a Javascript SOAP Client into a factory that has a similar syntax to $http.",
-  "main": ["soapclient.js","angular.soap.js"],
+  "main": ["index.js"],
   "keywords": [
     "soap",
     "angular",
