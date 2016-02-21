@@ -8,6 +8,8 @@
  \*****************************************************************************/
 
 (function (w) {
+  'use strict';
+
   function SOAPClientParameters() {
     var _pl = [];
     this.add = function (name, value) {

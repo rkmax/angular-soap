@@ -1,6 +1,6 @@
-'format global';
-
 (function () {
+  'use strict';
+
   angular.module('angularSoap', [])
 
     .factory("$soap", ['$q', function ($q) {
